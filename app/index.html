@@ -1,65 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FrameBrew</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div id="app" class="app-shell">
-      <div id="art-frame" class="art-frame" aria-live="polite">
-        <div id="art-overlay" class="art-overlay"></div>
-        <img id="art-image" alt="Obra actual" />
-      </div>
-
-      <div class="art-meta">
-        <div>
-          <p id="art-index" class="eyebrow">Obra 1 / 1</p>
-          <h1 id="art-title">FrameBrew</h1>
-          <p id="art-author" class="author">Galería</p>
-        </div>
-      </div>
-
-      <div id="settings" class="settings hidden" aria-modal="true" role="dialog">
-        <div class="settings-panel">
-          <h2>Configuración</h2>
-
-          <label>
-            <span>Modo de pantalla</span>
-            <select id="display-mode">
-              <option value="fill">Rellenar</option>
-              <option value="fit">Ajustar</option>
-              <option value="center">Centrada</option>
-            </select>
-          </label>
-
-          <label>
-            <span>Autoavance</span>
-            <select id="auto-advance">
-              <option value="true">Activado</option>
-              <option value="false">Desactivado</option>
-            </select>
-          </label>
-
-          <label>
-            <span>Tiempo (seg)</span>
-            <input id="interval" type="number" min="5" max="120" step="5" value="20" />
-          </label>
-
-          <label>
-            <span>Iluminación simulada</span>
-            <select id="lighting">
-              <option value="0">Sin filtro</option>
-              <option value="0.15">Suave</option>
-              <option value="0.25">Media</option>
-              <option value="0.4">Oscura</option>
-            </select>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <script src="gallery.js"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>FrameBrew | Galería de arte</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #f6f0e7; background: #272722; }
+  #wall { position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: radial-gradient(ellipse at 50% 35%, #777166 0%, #4a4943 55%, #30312e 100%); }
+  #wall::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: linear-gradient(160deg, rgba(255,255,255,.055), transparent 45%, rgba(0,0,0,.26)); pointer-events: none; }
+  #stage { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; padding: 5vh 7vw 8vh; }
+  #frame { width: 75vw; height: 74vh; padding: 15px; box-shadow: 0 24px 50px rgba(0,0,0,.52), 0 7px 13px rgba(0,0,0,.3); background: #211815; transition: background .18s; }
+  #frame.frame-gold { background: linear-gradient(135deg,#72521e,#e7c876 12%,#8d652e 21%,#d8b05f 55%,#65451d 89%,#e3c379); box-shadow: 0 0 0 2px #644922, 0 26px 55px rgba(0,0,0,.55), inset 0 0 0 3px #fff1b4; }
+  #frame.frame-wood { background: repeating-linear-gradient(89deg, #4a281a 0px, #643a24 5px, #4c291b 9px, #7b4b30 15px); box-shadow: 0 0 0 2px #2b1c15, 0 24px 55px rgba(0,0,0,.54), inset 0 0 0 3px #9b7451; }
+  #frame.frame-black { background: linear-gradient(145deg,#353535,#101113 35%,#303030 70%,#050506); box-shadow: 0 0 0 2px #060606, 0 24px 55px rgba(0,0,0,.55); }
+  #frame.frame-white { background: linear-gradient(135deg,#fafafa,#cecac2 36%,#fefdf8 70%,#bfbcb4); box-shadow: 0 0 0 2px #bcb8b1, 0 24px 55px rgba(0,0,0,.35); }
+  #frame.frame-none { background: transparent; padding: 0; box-shadow: 0 16px 48px rgba(0,0,0,.3); }
+  #mat { width: 100%; height: 100%; padding: 4.8%; background: #eee6d3; box-shadow: inset 0 0 2px rgba(0,0,0,.22); }
+  #mat.mat-white { background: #faf9f6; }
+  #mat.mat-dark { background: #262525; }
+  #mat.mat-none { padding: 0; }
+  #imageBox { position: relative; width: 100%; height: 100%; overflow: hidden; background: #111; box-shadow: 0 0 6px rgba(0,0,0,.28); }
+  #painting { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 1; transition: opacity .3s ease; }
+  #painting.fit-contain { object-fit: contain; }
+  #painting.is-loading { opacity: .18; }
+  #shade { position: fixed; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; background: #000; opacity: 0; }
+  #hint { position: fixed; left: 50%; bottom: 2.1vh; transform: translateX(-50%); white-space: nowrap; padding: 10px 22px; font-size: 16px; letter-spacing: .035em; border-radius: 28px; background: rgba(0,0,0,.50); color: #f6eee6; opacity: 0; transition: opacity .5s; }
+  #hint.visible { opacity: 1; }
+  #caption { position: absolute; left: 5vw; bottom: 4vh; padding: 12px 18px; background: rgba(16,18,18,.59); border-radius: 6px; font-size: 18px; letter-spacing: .02em; }
+  #caption small { display: block; font-size: 12px; color: #dfd9cb; padding-top: 4px; }
+  #caption.off { display: none; }
+  #error { display: none; position: absolute; top: 4vh; left: 15vw; right: 15vw; font-size: 15px; text-align: center; padding: 10px; background: #7a2424; border-radius: 5px; }
+  #error.visible { display: block; }
+  #overlay { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 5; display: none; background: rgba(11,12,13,.75); align-items: center; justify-content: center; }
+  #overlay.show { display: flex; }
+  #panel { width: 710px; max-width: 86vw; max-height: 88vh; overflow: auto; padding: 28px 31px 24px; border-radius: 18px; background: #272725; border: 1px solid rgba(255,255,255,.2); box-shadow: 0 18px 75px rgba(0,0,0,.62); }
+  #panel h1 { font-size: 30px; font-weight: 500; margin: 0 0 3px; letter-spacing: .02em; }
+  #panel .sub { color: #b8b4ac; font-size: 16px; margin-bottom: 23px; }
+  .option { display: flex; align-items: center; justify-content: space-between; padding: 16px 15px; border-radius: 8px; min-height: 55px; gap: 18px; font-size: 20px; }
+  .option span:last-child { color: #ecd1a1; font-weight: 600; text-align: right; white-space: nowrap; }
+  .option.selected { outline: 3px solid #d8b673; background: #383630; }
+  .foot { color: #cbc4b7; border-top: 1px solid #4b4944; font-size: 15px; padding-top: 19px; margin-top: 18px; line-height: 1.5; }
+  .actions { display: flex; margin-top: 12px; gap: 12px; }
+  .actions button { border: 1px solid #777063; background: #383630; color: white; padding: 13px 20px; font-size: 15px; border-radius: 7px; cursor: pointer; }
+  .actions button:focus { outline: 3px solid #d8b673; }
+  @media (max-width: 850px) { #frame { width: 82vw; height: 67vh; padding: 8px; } #panel { padding: 18px; } .option { font-size: 16px; padding: 11px; } #hint { font-size: 12px; } }
+</style>
+</head>
+<body>
+<div id="wall"></div>
+<div id="stage">
+  <div id="frame" class="frame-gold"><div id="mat" class="mat-ivory"><div id="imageBox"><img id="painting" alt="Cuadro digital"></div></div></div>
+</div>
+<div id="shade"></div>
+<div id="caption"></div>
+<div id="error"></div>
+<div id="hint">◀ ▶ cambiar cuadro · OK abrir ajustes · Play/Pausa detener</div>
+<div id="overlay" role="dialog" aria-label="Ajustes de FrameBrew">
+  <div id="panel">
+    <h1>FrameBrew</h1>
+    <div class="sub">Galería de arte para Samsung TizenBrew</div>
+    <div id="optionList"></div>
+    <div class="foot">▲ ▼ seleccionar · ◀ ▶ cambiar · OK siguiente valor · Atrás cerrar · Los cambios se guardan automáticamente.</div>
+    <div class="actions"><button id="closeBtn">Cerrar ajustes</button><button id="nextBtn">Siguiente obra</button></div>
+  </div>
+</div>
+<script src="gallery.js"></script>
+<script src="main.js"></script>
+</body>
 </html>
