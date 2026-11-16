@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FrameBrew</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <div id="art-frame" class="art-frame" aria-live="polite">
+        <div id="art-overlay" class="art-overlay"></div>
+        <img id="art-image" alt="Obra actual" />
+      </div>
+
+      <div class="art-meta">
+        <div>
+          <p id="art-index" class="eyebrow">Obra 1 / 1</p>
+          <h1 id="art-title">FrameBrew</h1>
+          <p id="art-author" class="author">Galería</p>
+        </div>
+      </div>
+
+      <div id="settings" class="settings hidden" aria-modal="true" role="dialog">
+        <div class="settings-panel">
+          <h2>Configuración</h2>
+
+          <label>
+            <span>Modo de pantalla</span>
+            <select id="display-mode">
+              <option value="fill">Rellenar</option>
+              <option value="fit">Ajustar</option>
+              <option value="center">Centrada</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Autoavance</span>
+            <select id="auto-advance">
+              <option value="true">Activado</option>
+              <option value="false">Desactivado</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Tiempo (seg)</span>
+            <input id="interval" type="number" min="5" max="120" step="5" value="20" />
+          </label>
+
+          <label>
+            <span>Iluminación simulada</span>
+            <select id="lighting">
+              <option value="0">Sin filtro</option>
+              <option value="0.15">Suave</option>
+              <option value="0.25">Media</option>
+              <option value="0.4">Oscura</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <script src="gallery.js"></script>
+  </body>
+</html>

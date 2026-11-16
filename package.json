@@ -1,0 +1,15 @@
+{
+  "name": "framebrew-tizenbrew",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Galería de cuadros y marcos para televisores Samsung con TizenBrew (web app, sin root)",
+  "packageType": "app",
+  "appName": "FrameBrew",
+  "appPath": "app/index.html",
+  "evaluateScriptOnDocumentStart": false,
+  "keys": [],
+  "main": "app/index.html",
+  "license": "MIT",
+  "files": ["app/"],
+  "keywords": ["tizenbrew", "samsung", "frame", "art", "gallery"]
+}
